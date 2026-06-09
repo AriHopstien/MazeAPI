@@ -1,4 +1,5 @@
 package MazeSolver;
+
 public class MazeArrey {
     public static int[][] solveMaze(int[][] maze) {
         int rows = maze.length;
