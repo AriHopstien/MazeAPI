@@ -14,7 +14,7 @@ public class GetInstructions {
 
     private static final HttpClient client = HttpClient.newHttpClient();
 
-    public static CompletableFuture<String> generateMazeUrlAsync(int width, int height) {
+    private static CompletableFuture<String> generateMazeUrlAsync(int width, int height) {
         return CompletableFuture.supplyAsync(() -> {
             String baseApiUrl = "https://backend-qcf9.onrender.com/fm1/get-maze-image";
 
@@ -70,9 +70,7 @@ public class GetInstructions {
         });
     }
 
-    public static CompletableFuture<int[][]> convertImageToBinaryGridAsync() {// הגדרת מידות ברירת מחדל ישירות בתוך הפונקציה (למשל 40x40)
-        int defaultWidth = 40;
-        int defaultHeight = 40;
+    public static CompletableFuture<int[][]> convertImageToBinaryGridAsync(int defaultWidth, int defaultHeight) {// הגדרת מידות ברירת מחדל ישירות בתוך הפונקציה (למשל 40x40)
 
         return generateMazeUrlAsync(defaultWidth, defaultHeight).thenCompose(imageUrl -> {
             return CompletableFuture.supplyAsync(() -> {
