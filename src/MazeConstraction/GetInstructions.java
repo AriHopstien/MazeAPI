@@ -13,28 +13,12 @@ public class GetInstructions {
 
     private static final HttpClient client = HttpClient.newHttpClient();
 
-    public static String generateMazeUrl(int width, int height) {
-        String baseApiUrl = "https://backend-qcf9.onrender.com/fm1/get-maze-image";
-
-        int finalWidth = width;
-        int finalHeight = height;
-
-        if (finalWidth > 100 || finalWidth < 5) {
-            finalWidth = 30;
-        }
-
-        if (finalHeight > 100 || finalHeight < 5) {
-            finalHeight = 30;
-        }
-
-        return baseApiUrl + "?width=" + finalWidth + "&height=" + finalHeight;
-    }
-
     public static void getApiSettingsAsync() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String settingsUrl = "https://backend-qcf9.onrender.com/fm1/get-render-config";
+
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(settingsUrl))
                         .GET()
@@ -61,8 +45,7 @@ public class GetInstructions {
                         }
                     }
 
-                    // הדפסת התוצאות מתוך ה-Thread ברגע שהן מוכנות
-                    System.out.println("--- API Settings Ready ---");
+                    System.out.println("--- API Settings Ready (From Thread) ---");
                     for (int i = 0; i < result.length; i++) {
                         System.out.println("Index [" + i + "]: " + result[i]);
                     }
@@ -74,17 +57,17 @@ public class GetInstructions {
         }).start();
     }
 
-
-    public static void convertImageToBinaryGridAsync() {
-
+    public static void convertImageToBinaryGridAsync(int width, int height) {
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-                int defaultWidth = 40;
-                int defaultHeight = 40;
+                int finalWidth = width;
+                int finalHeight = height;
+                if (finalWidth > 100 || finalWidth < 5) finalWidth = 30;
+                if (finalHeight > 100 || finalHeight < 5) finalHeight = 30;
 
-                String imageUrl = generateMazeUrl(defaultWidth, defaultHeight);
+                String imageUrl = "https://backend-qcf9.onrender.com/fm1/get-maze-image?width=" + finalWidth + "&height=" + finalHeight;
 
                 HttpRequest request = HttpRequest.newBuilder()
                         .uri(URI.create(imageUrl))
@@ -99,18 +82,30 @@ public class GetInstructions {
 
                     int imgWidth = image.getWidth();
                     int imgHeight = image.getHeight();
-                    int[][] grid = new int[imgHeight][imgWidth];
+
+                    int blockRows = imgHeight / 16;
+                    int blockCols = imgWidth / 16;
+                    int[][] grid = new int[blockRows][blockCols];
 
                     int whiteRgb = Color.WHITE.getRGB();
 
-                    for (int y = 0; y < imgHeight; y++) {
-                        for (int x = 0; x < imgWidth; x++) {
+                    for (int y = 0; y < imgHeight; y += 16) {
+                        for (int x = 0; x < imgWidth; x += 16) {
                             int pixelRgb = image.getRGB(x, y);
-                            grid[y][x] = (pixelRgb != whiteRgb) ? 0 : 1;
+
+                            // חישוב המיקום המתאים במערך המוקטן
+                            int gridY = y / 16;
+                            int gridX = x / 16;
+
+                            if (pixelRgb != whiteRgb) {
+                                grid[gridY][gridX] = 0; // לא לבן -> קיר
+                            } else {
+                                grid[gridY][gridX] = 1; // לבן -> שביל
+                            }
                         }
                     }
 
-                    System.out.println("\n--- Binary Grid Ready (" + imgHeight + "x" + imgWidth + ") ---");
+                    System.out.println("\n--- Binary Grid Ready (Size: " + blockRows + "x" + blockCols + ") ---");
                     for (int y = 0; y < grid.length; y++) {
                         for (int x = 0; x < grid[y].length; x++) {
                             System.out.print(grid[y][x]);
