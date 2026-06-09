@@ -1,5 +1,5 @@
 // שלב 3
-package MazeConstraction;
+package MazeConstruction;
 
 public class Reload {
 }
