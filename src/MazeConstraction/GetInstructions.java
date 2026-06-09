@@ -2,5 +2,5 @@
 // שלב 5
 package MazeConstraction;
 
-public class GetInstrctions {
+public class GetInstructions {
 }
