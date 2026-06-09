@@ -1,5 +1,5 @@
 package MazeSolver;
-import MazeConstraction.GetInstructions;
+import MazeConstruction.GetInstructions;
 
 public class MazeArrey {
     public static int[][] solveMaze(int[][] grid) {

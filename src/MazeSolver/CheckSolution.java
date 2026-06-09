@@ -34,16 +34,26 @@ public class CheckSolution {
                 for (int[] dir : dirs) {
                     int newX = x + dir[0];
                     int newY = y + dir[1];
+                    int wayCost = 0;
 
-                    if (newX < 0 || newX >= rows || newY < 0 || newY >= cols)
-                        continue;
-                    if (result[newX][newY] == 0)
-                        continue;
+                    while (newX >= 0 && newX < rows && newY >= 0 && newY < cols
+                            && result[newX][newY] == 2) {
+                        wayCost++;
+                        newX += dir[0];
+                        newY += dir[1];
+                    }
 
-                    int newCost = current.getTotalCost() + result[newX][newY] + 1;
-                    if (newCost < dist[newX][newY]) {
-                        dist[newX][newY] = newCost;
-                        pq.add(new Node(newX, newY, 0, newCost, current));
+                    if (newX < 0 || newX >= rows || newY < 0 || newY >= cols) continue;
+                    if (result[newX][newY] == 0) continue;
+
+                    Node destination = new Node(newX, newY, 0, 0, current);
+                    Way way = new Way(wayCost, current, destination);
+
+                    int newTotalCost = current.getTotalCost() + way.getCost() + 1;
+
+                    if (newTotalCost < dist[newX][newY]) {
+                        dist[newX][newY] = newTotalCost;
+                        pq.add(new Node(newX, newY, 0, newTotalCost, current));
                     }
                 }
             }
