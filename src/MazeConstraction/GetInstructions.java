@@ -7,100 +7,104 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.concurrent.CompletableFuture;
 import javax.imageio.ImageIO;
 
 public class GetInstructions {
 
     private static final HttpClient client = HttpClient.newHttpClient();
 
-    public static String generateMazeUrl(int width, int height) {
-        String baseApiUrl = "https://backend-qcf9.onrender.com/fm1/get-maze-image";
+    public static CompletableFuture<String> generateMazeUrlAsync(int width, int height) {
+        return CompletableFuture.supplyAsync(() -> {
+            String baseApiUrl = "https://backend-qcf9.onrender.com/fm1/get-maze-image";
 
-        if (width > 100 || width < 5) {
-            width = 30;
-        }
+            int finalWidth = width;
+            int finalHeight = height;
 
-        if (height > 100 || height < 5) {
-            height = 30;
-        }
-        return baseApiUrl + "?width=" + width + "&height=" + height;
-    }
-
-    public static String[] getApiSettings() {
-        String settingsUrl = "https://backend-qcf9.onrender.com/fm1/get-render-config";
-
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(settingsUrl))
-                .GET()
-                .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-            String json = response.body();
-
-            json = json.replaceAll("[{}\"\\s]", "");
-
-            String[] pairs = json.split(",");
-
-            String[] result = new String[5];
-
-            for (String pair : pairs) {
-                String[] kv = pair.split(":");
-
-                if (kv.length < 2) continue;
-
-                switch (kv[0]) {
-                    case "wallCellColor":     result[0] = kv[1]; break;
-                    case "pathColor":         result[1] = kv[1]; break;
-                    case "drawGrid":          result[2] = kv[1]; break;
-                    case "gridColor":         result[3] = kv[1]; break;
-                    case "animationDelayMs":  result[4] = kv[1]; break;
-                }
+            if (finalWidth > 100 || finalWidth < 5) {
+                finalWidth = 30;
             }
 
-            return result;
+            if (finalHeight > 100 || finalHeight < 5) {
+                finalHeight = 30;
+            }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+            return baseApiUrl + "?width=" + finalWidth + "&height=" + finalHeight;
+        });
     }
 
-    public static int[][] convertImageToBinaryGrid(String imageUrl) {
-        HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(imageUrl))
-                .GET()
-                .build();
+    public static CompletableFuture<String[]> getApiSettingsAsync() {
+        return CompletableFuture.supplyAsync(() -> {
+            String settingsUrl = "https://backend-qcf9.onrender.com/fm1/get-render-config";
 
-        try {
-            HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-            BufferedImage image = ImageIO.read(response.body());
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(URI.create(settingsUrl))
+                    .GET()
+                    .build();
 
-            if (image == null) return null;
+            try {
+                HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+                String json = response.body();
 
-            int width = image.getWidth();
-            int height = image.getHeight();
-            int[][] grid = new int[height][width];
+                json = json.replaceAll("[{}\"\\s]", "");
+                String[] pairs = json.split(",");
+                String[] result = new String[5];
 
-            int whiteRgb = Color.WHITE.getRGB();
+                for (String pair : pairs) {
+                    String[] kv = pair.split(":");
+                    if (kv.length < 2) continue;
 
-            for (int y = 0; y < height; y++) {
-                for (int x = 0; x < width; x++) {
-                    int pixelRgb = image.getRGB(x, y);
-
-                    if (pixelRgb != whiteRgb) {
-                        grid[y][x] = 0;
-                    } else {
-                        grid[y][x] = 1;
+                    switch (kv[0]) {
+                        case "wallCellColor":     result[0] = kv[1]; break;
+                        case "pathColor":         result[1] = kv[1]; break;
+                        case "drawGrid":          result[2] = kv[1]; break;
+                        case "gridColor":         result[3] = kv[1]; break;
+                        case "animationDelayMs":  result[4] = kv[1]; break;
                     }
                 }
+                return result;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
             }
-            return grid;
+        });
+    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
+    public static CompletableFuture<int[][]> convertImageToBinaryGridAsync() {// הגדרת מידות ברירת מחדל ישירות בתוך הפונקציה (למשל 40x40)
+        int defaultWidth = 40;
+        int defaultHeight = 40;
+
+        return generateMazeUrlAsync(defaultWidth, defaultHeight).thenCompose(imageUrl -> {
+            return CompletableFuture.supplyAsync(() -> {
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(imageUrl))
+                        .GET()
+                        .build();
+
+                try {
+                    HttpResponse<InputStream> response = client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+                    BufferedImage image = ImageIO.read(response.body());
+
+                    if (image == null) return null;
+
+                    int imgWidth = image.getWidth();
+                    int imgHeight = image.getHeight();
+                    int[][] grid = new int[imgHeight][imgWidth];
+
+                    int whiteRgb = Color.WHITE.getRGB();
+
+                    for (int y = 0; y < imgHeight; y++) {
+                        for (int x = 0; x < imgWidth; x++) {
+                            int pixelRgb = image.getRGB(x, y);
+                            grid[y][x] = (pixelRgb != whiteRgb) ? 0 : 1;
+                        }
+                    }
+                    return grid;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            });
+        });
     }
 }
