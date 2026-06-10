@@ -8,74 +8,90 @@ public class CheckSolution {
         int rows = maze.length;
         int cols = maze[0].length;
 
-        // ✓ בדוק אם התחלה או סיום הם קירות
-        if (maze[0][0] == 0 || maze[rows - 1][cols - 1] == 0) {
-            return null; // אין פתרון
-        }
+        if (maze[0][0] == 0 || maze[rows-1][cols-1] == 0)
+            return null;
 
-        // ✓ BFS - פשוט ואמין למבוך
-        Queue<int[]> queue = new LinkedList<>();
-        boolean[][] visited = new boolean[rows][cols];
-        int[][] parent = new int[rows][cols];
+        int[][] dist = new int[rows][cols];
+        for (int[] row : dist)
+            Arrays.fill(row, Integer.MAX_VALUE);
 
-        // אתחול parent ל-(-1, -1)
-        for (int[] row : parent) {
-            Arrays.fill(row, -1);
-        }
+        PriorityQueue<Node> pq = new PriorityQueue<>(
+                Comparator.comparingInt(Node::getTotalCost)
+        );
 
-        queue.add(new int[]{0, 0});
-        visited[0][0] = true;
-        parent[0][0] = -2; // סימן התחלה
+        Node start = new Node(0, 0, 0, null);
+        dist[0][0] = 0;
+        pq.add(start);
 
-        int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+        while (!pq.isEmpty()) {
+            Node current = pq.poll();
+            int x = current.getX();
+            int y = current.getY();
 
-        while (!queue.isEmpty()) {
-            int[] current = queue.poll();
-            int x = current[0];
-            int y = current[1];
+            if (x == rows-1 && y == cols-1)
+                return buildPath(current);
 
-            // ✓ בדוק אם הגענו לסיום
-            if (x == rows - 1 && y == cols - 1) {
-                return buildPath(parent, rows, cols);
-            }
+            if (current.getTotalCost() > dist[x][y])
+                continue;
 
-            // ✓ חפש בכל הכיוונים
-            for (int[] dir : directions) {
+            int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1}};
+            for (int[] dir : dirs) {
                 int newX = x + dir[0];
                 int newY = y + dir[1];
+                int wayCost = 0;
 
-                // ✓ בדוק תקינות וערך
-                if (newX >= 0 && newX < rows && newY >= 0 && newY < cols
-                        && !visited[newX][newY] && maze[newX][newY] == 1) {
+                // הולך לאורך המסדרון וסופר תאי 2
+                while (newX >= 0 && newX < rows && newY >= 0 && newY < cols
+                        && maze[newX][newY] == 2) {
+                    wayCost++;
+                    newX += dir[0];
+                    newY += dir[1];
+                }
 
-                    visited[newX][newY] = true;
-                    parent[newX][newY] = x * cols + y; // שמור את ההורה
-                    queue.add(new int[]{newX, newY});
+                if (newX < 0 || newX >= rows || newY < 0 || newY >= cols) continue;
+                if (maze[newX][newY] == 0) continue;
+
+                Node destination = new Node(newX, newY, 0, null);
+                Way way = new Way(wayCost, dir[0], dir[1], current, destination);
+
+                int newTotalCost = current.getTotalCost() + way.getCost() + 1;
+
+                if (newTotalCost < dist[newX][newY]) {
+                    dist[newX][newY] = newTotalCost;
+                    pq.add(new Node(newX, newY, newTotalCost,
+                            new Way(wayCost, dir[0], dir[1], current, destination)));
                 }
             }
         }
 
-        return null; // אין פתרון
+        return null;
     }
 
-    private static int[][] buildPath(int[][] parent, int rows, int cols) {
+    private static int[][] buildPath(Node end) {
         List<int[]> path = new ArrayList<>();
+        Node current = end;
 
-        int x = rows - 1;
-        int y = cols - 1;
+        while (current != null) {
+            // מוסיף את הצומת עצמה
+            path.add(new int[]{current.getX(), current.getY()});
 
-        // ✓ בנה את הנתיב מהסוף להתחלה
-        while (parent[x][y] != -2) {
-            path.add(new int[]{x, y});
+            // מוסיף את תאי ה-2 שלפניה דרך ה-Way
+            Way way = current.getWayFromPrevious();
+            if (way != null) {
+                Node prev = way.getStart();
+                int cx = current.getX() - way.getDx();
+                int cy = current.getY() - way.getDy();
+                while (cx != prev.getX() || cy != prev.getY()) {
+                    path.add(new int[]{cx, cy});
+                    cx -= way.getDx();
+                    cy -= way.getDy();
+                }
+            }
 
-            int prevIdx = parent[x][y];
-            x = prevIdx / cols;
-            y = prevIdx % cols;
+            current = (way != null) ? way.getStart() : null;
         }
 
-        path.add(new int[]{0, 0}); // הוסף את ההתחלה
-        Collections.reverse(path); // הפוך לסדר נכון
-
+        Collections.reverse(path);
         return path.toArray(new int[0][]);
     }
 }
