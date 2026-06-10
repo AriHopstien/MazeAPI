@@ -104,7 +104,7 @@ public class SettingsWindow extends JPanel {
             try {
                 width = Integer.valueOf(width_maze.getText());
                 height = Integer.valueOf(height_maze.getText());
-                if (!(4<width && width<100 && height<100 && height>4)){
+                if (!(4<width && width<101 && height<101 && height>4)){
                     width = 30;
                     height = 30;
                 }
