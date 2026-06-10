@@ -1,5 +1,5 @@
 //שלב 4
-package MazeConstraction;
+package MazeConstruction;
 
 public class MazeSize {
 }
