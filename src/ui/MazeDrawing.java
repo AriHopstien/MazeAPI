@@ -19,14 +19,32 @@ public class MazeDrawing extends JPanel {
         state_chack_solution = false;
         this.setting = setting;
         image = Grid.CrateImage(maze_image, width, height, setting[0], Boolean.parseBoolean(setting[2]), setting[3]);
-        System.out.println(image.getWidth()+" "+image.getHeight());
+
         solution = CheckSolution.solve(maze_image);
         this.setPreferredSize(new Dimension(1280, 720));
         setLayout(null);
-        back = new JButton("Back");
-        back.setBounds(1000, 100, 100, 50);
-        chack_solution = new JButton("Chack Solution");
-        chack_solution.setBounds(1000, 500, 100, 50);
+        setBackground(new Color(25, 25, 35));
+
+        back = new JButton("חזרה");
+        back.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        back.setBackground(new Color(231, 76, 60));
+        back.setForeground(Color.WHITE);
+
+        back.setFocusPainted(false);
+        back.setBorderPainted(false);
+
+        back.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        back.setBounds(1000, 400, 200, 100);
+        chack_solution = new JButton("בדיקת פתרון");
+        chack_solution.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        chack_solution.setBackground(new Color(46, 204, 113));
+        chack_solution.setForeground(Color.WHITE);
+
+        chack_solution.setFocusPainted(false);
+        chack_solution.setBorderPainted(false);
+
+        chack_solution.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        chack_solution.setBounds(1000, 120, 200, 100);
 
         back.addActionListener(e -> {
             MainPanel mainPanel = (MainPanel) SwingUtilities.getWindowAncestor(back);
@@ -34,8 +52,15 @@ public class MazeDrawing extends JPanel {
 
         });
         chack_solution.addActionListener(e -> {
-
+            if(solution == null){
+                chack_solution.setText("אין פתרון");
+                this.revalidate();
+                this.repaint();
+                return;
+            }
+            Frame();
         });
+
         add(back);
         add(chack_solution);
 
@@ -44,8 +69,8 @@ public class MazeDrawing extends JPanel {
     private void Frame() {
         new Thread(() -> {
             chack_solution.setEnabled(false);
-            state_chack_solution = false;
-           for (int[] sqoure : solution) {
+            state_chack_solution = true;
+            for (int[] sqoure : solution) {
                image_animation = Grid.CrateSolution(image, sqoure, setting[4], Boolean.parseBoolean(setting[2]), setting[3]);
                SwingUtilities.invokeLater(() -> {
                    this.revalidate();
@@ -56,19 +81,58 @@ public class MazeDrawing extends JPanel {
                }
                catch (InterruptedException e) {}
            }
+            for (int i = solution.length - 1; i >= 0; i--) {
+                image_animation = Grid.Crateanimation(image_animation, solution[i], setting[4], Boolean.parseBoolean(setting[2]), setting[3]);
+                SwingUtilities.invokeLater(() -> {
+                    this.revalidate();
+                    this.repaint();
+                });
+                try {
+                    Thread.sleep(50);
+                }
+                catch (InterruptedException e) {}
+
+            }
+
            chack_solution.setEnabled(true);
-           state_chack_solution = true;
-        });
+           state_chack_solution = false;
+        }).start();
     }
 
-
     @Override
-    public void paintComponent(Graphics g) {
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
+
         Graphics2D g2d = (Graphics2D) g;
-        g2d.drawImage(image, 0, 15, this);
-        if (state_chack_solution) {
-            g2d.drawImage(image_animation, 0, 0, this);
+
+        // רקע גרדיאנט
+        GradientPaint gradient = new GradientPaint(
+                0, 0, new Color(20, 20, 30),
+                getWidth(), getHeight(),
+                new Color(45, 45, 65)
+        );
+
+        g2d.setPaint(gradient);
+        g2d.fillRect(0, 0, getWidth(), getHeight());
+
+        // כותרת
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        g2d.setColor(new Color(255, 215, 0));
+        g2d.drawString("Maze Viewer", 30, 45);
+
+        // מסגרת למבוך
+        g2d.setColor(new Color(70, 70, 90));
+        g2d.fillRoundRect(20, 60, 650, 620, 20, 20);
+
+        g2d.setColor(new Color(100, 170, 255));
+        g2d.setStroke(new BasicStroke(3));
+        g2d.drawRoundRect(20, 60, 650, 620, 20, 20);
+
+        // ציור המבוך
+        if (!state_chack_solution) {
+            g2d.drawImage(image, 40, 70, this);
+        } else {
+            g2d.drawImage(image_animation, 40, 70, this);
         }
     }
 

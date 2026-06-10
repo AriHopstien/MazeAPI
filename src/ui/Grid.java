@@ -15,7 +15,7 @@ public class Grid {
             color_grid = Color.decode(gridColor);
         }
         int max = Math.max(width,height);
-        square = 700/max;
+        square = 620/max;
 
         width = width*square;
         height = height*square;
@@ -49,15 +49,34 @@ public class Grid {
         Color color_path = Color.decode(pathcolor);
         Color color_grid = null;
         g2d.setColor(color_path);
-        g2d.fillRect(pixel[0], pixel[1],square,square);
+        int x = pixel[0] * square;
+        int y = pixel[1] * square;
+        g2d.fillRect(y, x,square,square);
         if(drawGrid){
             color_grid = Color.decode(gridColor);
             g2d.setColor(color_grid);
-            g2d.drawRect(pixel[0], pixel[1],square,square);
+            g2d.drawRect(y, x,square,square);
         }
         g2d.dispose();
         return image;
 
+    }
+    public static BufferedImage Crateanimation(BufferedImage image, int[] pixel,String pathcolor, boolean drawGrid, String gridColor){
+        Graphics2D g2d = image.createGraphics();
+        g2d.drawImage(image, 0, 0, null);
+        Color color_path = Color.decode(pathcolor);
+        Color color_grid = null;
+        g2d.setColor(color_path);
+        int x = pixel[0] * square;
+        int y = pixel[1] * square;
+        g2d.fillRect(y, x,square,square);
+        if(drawGrid){
+            color_grid = Color.decode(gridColor);
+            g2d.setColor(color_grid);
+            g2d.drawRect(y, x,square,square);
+        }
+        g2d.dispose();
+        return image;
     }
 
 }

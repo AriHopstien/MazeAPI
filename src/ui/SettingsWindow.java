@@ -1,6 +1,6 @@
 package ui;
 
-import MazeConstraction.GetInstructions;
+import MazeConstruction.GetInstructions;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,25 +26,24 @@ public class SettingsWindow extends JPanel {
     private int width, height;
 
     public SettingsWindow() {
-        height = 30;
-        width = 30;
+
 
         this.setPreferredSize(new Dimension(1280, 720));
         this.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
+        this.setBackground(new Color(30, 30, 40));
 
         setting = GetInstructions.getApiSettings();
 
-        // 1. אתחול ה-JTextAreas (הטקסטים)
-        title = new JTextArea("SETTINGS"); // טקסט קבוע מראש
+        title = new JTextArea("⚙ SETTINGS", 1, 20);
         setting_wallCellColor = new JTextArea(1, 30);
         setting_pathColor = new JTextArea(1, 30);
         setting_drawGrid = new JTextArea(1, 30);
         setting_gridColor = new JTextArea(1, 30);
         setting_animationDelayMs = new JTextArea(1, 30);
 
-        // עיצוב כותרת: גופן מודגש וגדול יותר
-        title.setFont(new Font("Arial", Font.BOLD, 22));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 32));
+        title.setForeground(new Color(255, 215, 0)); // זהב
 
         JTextArea[] allFields = {
                 title, setting_wallCellColor, setting_pathColor,
@@ -54,14 +53,14 @@ public class SettingsWindow extends JPanel {
         for (JTextArea area : allFields) {
             area.setEditable(false);
             area.setFocusable(false);
-            area.setBackground(null);
+            area.setOpaque(false);
             area.setBorder(null);
             area.setLineWrap(true);
             area.setWrapStyleWord(true);
 
-            // הגדרת פונט רגיל לשאר השורות (רק אם זו לא הכותרת)
             if (area != title) {
-                area.setFont(new Font("Arial", Font.PLAIN, 16));
+                area.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+                area.setForeground(Color.WHITE);
             }
         }
         setRefresh_setting();
@@ -69,11 +68,29 @@ public class SettingsWindow extends JPanel {
         // 2. אתחול כפתורים ושדות קלט לעריכה
         refresh_setting = new JButton("רענן הגדרות");
         get_maze = new JButton("צור מבוך");
+        styleButton(refresh_setting);
+        styleButton(get_maze);
 
         width_maze = new JTextField(3);
         height_maze = new JTextField(3);
 
-        // 3. הוספת מאזינים (Listeners) לכפתורים
+        JTextField[] fields = {width_maze, height_maze};
+
+        for (JTextField field : fields) {
+            field.setFont(new Font("Segoe UI", Font.BOLD, 18));
+            field.setPreferredSize(new Dimension(80, 35));
+
+            field.setBackground(new Color(50, 50, 65));
+            field.setForeground(Color.WHITE);
+
+            field.setCaretColor(Color.WHITE);
+
+            field.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(new Color(100, 150, 255), 2),
+                    BorderFactory.createEmptyBorder(5, 10, 5, 10)
+            ));
+        }
+
         refresh_setting.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -84,6 +101,18 @@ public class SettingsWindow extends JPanel {
 
         get_maze.addActionListener(e -> {
             MainPanel mainPanel = (MainPanel) SwingUtilities.getWindowAncestor(get_maze);
+            try {
+                width = Integer.valueOf(width_maze.getText());
+                height = Integer.valueOf(height_maze.getText());
+                if (!(4<width && width<100 && height<100 && height>4)){
+                    width = 30;
+                    height = 30;
+                }
+            }
+            catch (NumberFormatException ex) {
+                width = 30;
+                height = 30;
+            }
             mainPanel.showMazeDrawing(setting, GetInstructions.convertImageToBinaryGrid(width, height), width, height);
         });
 
@@ -96,7 +125,7 @@ public class SettingsWindow extends JPanel {
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.weighty = 1.0;
         gbc.weightx = 0.0;
-        gbc.insets = new Insets(10, 20, 10, 20);
+        gbc.insets = new Insets(10, 100, 10, 20);
 
         // הוספת הטקסטים לעמודה 0
         gbc.gridx = 0;
@@ -132,7 +161,19 @@ public class SettingsWindow extends JPanel {
     }
     private void setRefresh_setting(){
         String[] setting_arry = setting;
-        updateSettingsTexts(setting_arry[0],setting_arry[1],setting_arry[2],setting_arry[3],setting_arry[4]);
+        updateSettingsTexts("Wall color:   "+setting_arry[0],"Path color:   "+setting_arry[1],"Is grid:   "+setting_arry[2],"Grid color:   "+setting_arry[3],"Delay:   "+setting_arry[4]);
+    }
+
+    private void styleButton(JButton button) {
+        button.setFont(new Font("Segoe UI", Font.BOLD, 16));
+
+        button.setBackground(new Color(70, 130, 255));
+        button.setForeground(Color.WHITE);
+
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+
+        button.setPreferredSize(new Dimension(180, 40));
     }
 
 }
