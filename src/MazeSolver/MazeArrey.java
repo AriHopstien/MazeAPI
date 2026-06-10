@@ -29,10 +29,19 @@ public class MazeArrey {
                 if (col < cols - 1 && grid[row][col + 1] == 1) {
                     count++;
                 }
-                result[row][col] = count;
+                if (count == 2) {
+                    boolean vertical = (row > 0 && grid[row-1][col] == 1)
+                            && (row < rows-1 && grid[row+1][col] == 1);
+                    boolean horizontal = (col > 0 && grid[row][col-1] == 1)
+                            && (col < cols-1 && grid[row][col+1] == 1);
+                    result[row][col] = (vertical || horizontal) ? 2 : 3;
+                } else {
+                    result[row][col] = count;
+                }
             }
         }
         result[rows - 1][cols - 1] = 5;
+        result[0][0] = 3;
         return result;
     }
 }
