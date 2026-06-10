@@ -15,7 +15,7 @@ public class Grid {
             color_grid = Color.decode(gridColor);
         }
         int max = Math.max(width,height);
-        square = 620/max;
+        square = 600/max;
 
         width = width*square;
         height = height*square;
@@ -79,4 +79,7 @@ public class Grid {
         return image;
     }
 
+    public static int getSquare() {
+        return square;
+    }
 }

@@ -15,10 +15,14 @@ public class MazeDrawing extends JPanel {
     private String[] setting;
     private BufferedImage image;
     private BufferedImage image_animation;
+    private int width, height, square_size;
     public MazeDrawing(String[] setting, int[][] maze_image, int width, int height) {
+        this.width = width;
+        this.height = height;
         state_chack_solution = false;
         this.setting = setting;
         image = Grid.CrateImage(maze_image, width, height, setting[0], Boolean.parseBoolean(setting[2]), setting[3]);
+        square_size = Grid.getSquare();
 
         solution = CheckSolution.solve(maze_image);
         this.setPreferredSize(new Dimension(1280, 720));
@@ -122,11 +126,11 @@ public class MazeDrawing extends JPanel {
 
         // מסגרת למבוך
         g2d.setColor(new Color(70, 70, 90));
-        g2d.fillRoundRect(20, 60, 650, 620, 20, 20);
+        g2d.fillRoundRect(20, 60, width*square_size+35, height*square_size+15, 20, 20);
 
         g2d.setColor(new Color(100, 170, 255));
         g2d.setStroke(new BasicStroke(3));
-        g2d.drawRoundRect(20, 60, 650, 620, 20, 20);
+        g2d.drawRoundRect(20, 60, width*square_size+35, height*square_size+20, 20, 20);
 
         // ציור המבוך
         if (!state_chack_solution) {
