@@ -58,6 +58,7 @@ public class MazeDrawing extends JPanel {
         chack_solution.addActionListener(e -> {
             if(solution == null){
                 chack_solution.setText("אין פתרון");
+                chack_solution.setBackground(new Color(220, 63, 63));
                 this.revalidate();
                 this.repaint();
                 return;

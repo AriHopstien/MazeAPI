@@ -25,6 +25,8 @@ public class SettingsWindow extends JPanel {
     private String[] setting;
     private int width, height;
 
+    private boolean stateeror = true;
+
     public SettingsWindow() {
 
 
@@ -35,7 +37,7 @@ public class SettingsWindow extends JPanel {
 
         setting = GetInstructions.getApiSettings();
 
-        title = new JTextArea("⚙ SETTINGS", 1, 20);
+        title = new JTextArea("SETTINGS", 1, 20);
         setting_wallCellColor = new JTextArea(1, 30);
         setting_pathColor = new JTextArea(1, 30);
         setting_drawGrid = new JTextArea(1, 30);
@@ -63,7 +65,7 @@ public class SettingsWindow extends JPanel {
                 area.setForeground(Color.WHITE);
             }
         }
-        setRefresh_setting();
+
 
         // 2. אתחול כפתורים ושדות קלט לעריכה
         refresh_setting = new JButton("רענן הגדרות");
@@ -90,6 +92,16 @@ public class SettingsWindow extends JPanel {
                     BorderFactory.createEmptyBorder(5, 10, 5, 10)
             ));
         }
+        JLabel widthLabel = new JLabel("Width: ");
+        JLabel heightLabel = new JLabel("Height: ");
+
+        Color labelColor = new Color(175, 197, 204);
+
+        widthLabel.setForeground(labelColor);
+        heightLabel.setForeground(labelColor);
+
+        widthLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        heightLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
 
         refresh_setting.addActionListener(new ActionListener() {
             @Override
@@ -100,54 +112,88 @@ public class SettingsWindow extends JPanel {
         });
 
         get_maze.addActionListener(e -> {
+            if (!stateeror || GetInstructions.convertImageToBinaryGrid(5, 5) == null) {
+                get_maze.setEnabled(false);
+                get_maze.setText("Eror");
+                this.revalidate();
+                this.repaint();
+                return;
+            }
             MainPanel mainPanel = (MainPanel) SwingUtilities.getWindowAncestor(get_maze);
             try {
                 width = Integer.valueOf(width_maze.getText());
                 height = Integer.valueOf(height_maze.getText());
-                if (!(4<width && width<101 && height<101 && height>4)){
+                if (!(4 < width && width < 101 && height < 101 && height > 4)) {
                     width = 30;
                     height = 30;
                 }
-            }
-            catch (NumberFormatException ex) {
+            } catch (NumberFormatException ex) {
                 width = 30;
                 height = 30;
             }
             mainPanel.showMazeDrawing(setting, GetInstructions.convertImageToBinaryGrid(width, height), width, height);
         });
-
-
+        setRefresh_setting();
 
         // 4. מיקום הרכיבים ב-GridBagLayout
 
-        // --- חוקים כלליים לעמודה הראשונה (הטקסטים בצד שמאל) ---
+// --- חוקים כלליים לעמודה הראשונה (הטקסטים בצד שמאל) ---
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.VERTICAL;
         gbc.weighty = 1.0;
         gbc.weightx = 0.0;
         gbc.insets = new Insets(10, 100, 10, 20);
 
-        // הוספת הטקסטים לעמודה 0
+// הוספת הטקסטים לעמודה 0
         gbc.gridx = 0;
-        gbc.gridy = 0; this.add(title, gbc);
-        gbc.gridy = 1; this.add(setting_wallCellColor, gbc);
-        gbc.gridy = 2; this.add(setting_pathColor, gbc);
-        gbc.gridy = 3; this.add(setting_drawGrid, gbc);
-        gbc.gridy = 4; this.add(setting_gridColor, gbc);
-        gbc.gridy = 5; this.add(setting_animationDelayMs, gbc);
+        gbc.gridy = 0;
+        this.add(title, gbc);
+        gbc.gridy = 1;
+        this.add(setting_wallCellColor, gbc);
+        gbc.gridy = 2;
+        this.add(setting_pathColor, gbc);
+        gbc.gridy = 3;
+        this.add(setting_drawGrid, gbc);
+        gbc.gridy = 4;
+        this.add(setting_gridColor, gbc);
+        gbc.gridy = 5;
+        this.add(setting_animationDelayMs, gbc);
 
-        // --- חוקים כלליים לעמודה השנייה (הרכיבים האינטראקטיביים) ---
-        gbc.gridx = 1; // עוברים לעמודה הימנית יותר
-        gbc.anchor = GridBagConstraints.WEST; // גם אותם נצמיד לשמאל העמודה שלהם כדי שיהיו קרובים לטקסט
-        gbc.fill = GridBagConstraints.NONE; // כפתורים ושדות קלט לא צריכים להימתח לגובה
-        gbc.weightx = 1.0; // נותן לעמודה השנייה "לדחוף" ימינה ולתפוס את שאר רוחב המסך
+// --- עמודת הרכיבים ---
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.weightx = 1.0;
 
-        // נמקם כל רכיב קלט בשורה המתאימה לו מול הטקסט שלו:
-        gbc.gridy = 1; this.add(width_maze, gbc);              // מול wallCellColor (לדוגמה)
-        gbc.gridy = 2; this.add(height_maze, gbc);             // מול pathColor
-        gbc.gridy = 3; this.add(refresh_setting, gbc);          // מול drawGrid
-        gbc.gridy = 4; this.add(get_maze, gbc);                 // מול gridColor
+// Width
+        JPanel widthPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        widthPanel.setOpaque(false);
+        widthPanel.add(widthLabel);
+        widthPanel.add(width_maze);
+
+        gbc.gridy = 1;
+        this.add(widthPanel, gbc);
+
+// Height
+        JPanel heightPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        heightPanel.setOpaque(false);
+        heightPanel.add(heightLabel);
+        heightPanel.add(height_maze);
+
+        gbc.gridy = 2;
+        this.add(heightPanel, gbc);
+
+// כפתורים
+        gbc.gridy = 3;
+        this.add(refresh_setting, gbc);
+
+        gbc.gridy = 4;
+        this.add(get_maze, gbc);
     }
+
+
+
+
 
 
     private void updateSettingsTexts(String wallColor, String pathColor, String drawGrid, String gridColor, String animDelay) {
@@ -160,6 +206,14 @@ public class SettingsWindow extends JPanel {
         this.repaint();
     }
     private void setRefresh_setting(){
+        if (setting[1].equals("eror")){
+            stateeror = false;
+        }
+        else if (!stateeror){
+            stateeror = true;
+            get_maze.setEnabled(true);
+            get_maze.setText("צור מבוך");
+        }
         String[] setting_arry = setting;
         updateSettingsTexts("Wall color:   "+setting_arry[0],"Path color:   "+setting_arry[1],"Is grid:   "+setting_arry[2],"Grid color:   "+setting_arry[3],"Delay:   "+setting_arry[4]);
     }
