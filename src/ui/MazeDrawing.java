@@ -71,7 +71,7 @@ public class MazeDrawing extends JPanel {
             chack_solution.setEnabled(false);
             state_chack_solution = true;
             for (int[] sqoure : solution) {
-               image_animation = Grid.CrateSolution(image, sqoure, setting[4], Boolean.parseBoolean(setting[2]), setting[3]);
+               image_animation = Grid.CrateSolution(image, sqoure, setting[1], Boolean.parseBoolean(setting[2]), setting[3]);
                SwingUtilities.invokeLater(() -> {
                    this.revalidate();
                    this.repaint();
@@ -82,7 +82,7 @@ public class MazeDrawing extends JPanel {
                catch (InterruptedException e) {}
            }
             for (int i = solution.length - 1; i >= 0; i--) {
-                image_animation = Grid.Crateanimation(image_animation, solution[i], setting[4], Boolean.parseBoolean(setting[2]), setting[3]);
+                image_animation = Grid.Crateanimation(image_animation, solution[i], setting[1], Boolean.parseBoolean(setting[2]), setting[3]);
                 SwingUtilities.invokeLater(() -> {
                     this.revalidate();
                     this.repaint();
