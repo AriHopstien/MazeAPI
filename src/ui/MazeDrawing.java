@@ -75,25 +75,17 @@ public class MazeDrawing extends JPanel {
         new Thread(() -> {
             chack_solution.setEnabled(false);
             state_chack_solution = true;
-            for (int[] sqoure : solution) {
-               image_animation = Grid.CrateSolution(image, sqoure, setting[1], Boolean.parseBoolean(setting[2]), setting[3]);
-               SwingUtilities.invokeLater(() -> {
-                   this.revalidate();
-                   this.repaint();
-               });
-               try {
-                   Thread.sleep(Integer.parseInt(setting[4]));
-               }
-               catch (InterruptedException e) {}
-           }
-            for (int i = solution.length - 1; i >= 0; i--) {
+            image_animation = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d = image_animation.createGraphics();
+            g2d.drawImage(image, 0, 0, null);
+            for (int i =0; i < solution.length; i++) {
                 image_animation = Grid.Crateanimation(image_animation, solution[i], setting[1], Boolean.parseBoolean(setting[2]), setting[3]);
                 SwingUtilities.invokeLater(() -> {
                     this.revalidate();
                     this.repaint();
                 });
                 try {
-                    Thread.sleep(50);
+                    Thread.sleep(Integer.parseInt(setting[4]));
                 }
                 catch (InterruptedException e) {}
 
