@@ -1,6 +1,7 @@
 // שלב 9
 package ui;
 
+import MazeConstruction.OfflineMaze;
 import MazeSolver.CheckSolution;
 
 import javax.swing.*;
@@ -21,6 +22,9 @@ public class MazeDrawing extends JPanel {
         this.height = height;
         state_chack_solution = false;
         this.setting = setting;
+        if (maze_image == null) {
+            maze_image = OfflineMaze.generateMaze(width, height);
+        }
         image = Grid.CrateImage(maze_image, width, height, setting[0], Boolean.parseBoolean(setting[2]), setting[3]);
         square_size = Grid.getSquare();
 

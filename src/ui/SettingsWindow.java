@@ -34,7 +34,7 @@ public class SettingsWindow extends JPanel {
         this.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         this.setBackground(new Color(30, 30, 40));
-        setting = new String[]{"eror","eror","eror","eror","eror"};
+        setting = new String[]{"error","error","error","error","error"};
 
         setting = GetInstructions.getApiSettings();
 
@@ -107,7 +107,6 @@ public class SettingsWindow extends JPanel {
         refresh_setting.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 setting = GetInstructions.getApiSettings();
                 setRefresh_setting();
             }
@@ -115,8 +114,9 @@ public class SettingsWindow extends JPanel {
 
         get_maze.addActionListener(e -> {
             if (!stateeror || GetInstructions.convertImageToBinaryGrid(5, 5) == null) {
+                stateeror = false;
                 get_maze.setEnabled(false);
-                get_maze.setText("Eror");
+                get_maze.setText("Error");
                 this.revalidate();
                 this.repaint();
                 return;
@@ -208,7 +208,7 @@ public class SettingsWindow extends JPanel {
         this.repaint();
     }
     private void setRefresh_setting(){
-        if (setting[1].equals("eror")){
+        if (setting[1].equals("error")){
             stateeror = false;
         }
         else if (!stateeror){
