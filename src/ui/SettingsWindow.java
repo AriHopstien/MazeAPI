@@ -34,6 +34,7 @@ public class SettingsWindow extends JPanel {
         this.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         this.setBackground(new Color(30, 30, 40));
+        setting = new String[]{"eror","eror","eror","eror","Eror"};
 
         setting = GetInstructions.getApiSettings();
 
@@ -106,6 +107,7 @@ public class SettingsWindow extends JPanel {
         refresh_setting.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+
                 setting = GetInstructions.getApiSettings();
                 setRefresh_setting();
             }

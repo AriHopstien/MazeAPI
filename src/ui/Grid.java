@@ -42,38 +42,19 @@ public class Grid {
         return image;
     }
 
-    public static BufferedImage CrateSolution(BufferedImage image_original, int[] pixel, String pathcolor, boolean drawGrid, String gridColor ){
-        BufferedImage image = new BufferedImage(image_original.getWidth(), image_original.getHeight(), image_original.getType());
-        Graphics2D g2d = image.createGraphics();
-        g2d.drawImage(image_original, 0, 0, null);
-        Color color_path = Color.decode(pathcolor);
-        Color color_grid = null;
-        g2d.setColor(color_path);
-        int x = pixel[0] * square;
-        int y = pixel[1] * square;
-        g2d.fillRect(y, x,square,square);
-        if(drawGrid){
-            color_grid = Color.decode(gridColor);
-            g2d.setColor(color_grid);
-            g2d.drawRect(y, x,square,square);
-        }
-        g2d.dispose();
-        return image;
-
-    }
     public static BufferedImage Crateanimation(BufferedImage image, int[] pixel,String pathcolor, boolean drawGrid, String gridColor){
         Graphics2D g2d = image.createGraphics();
         g2d.drawImage(image, 0, 0, null);
         Color color_path = Color.decode(pathcolor);
         Color color_grid = null;
         g2d.setColor(color_path);
-        int x = pixel[0] * square;
-        int y = pixel[1] * square;
-        g2d.fillRect(y, x,square,square);
+        int y = pixel[0] * square;
+        int x = pixel[1] * square;
+        g2d.fillRect(x, y,square,square);
         if(drawGrid){
             color_grid = Color.decode(gridColor);
             g2d.setColor(color_grid);
-            g2d.drawRect(y, x,square,square);
+            g2d.drawRect(x, y,square,square);
         }
         g2d.dispose();
         return image;
