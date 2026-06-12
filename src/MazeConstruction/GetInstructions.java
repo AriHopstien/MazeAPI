@@ -25,9 +25,12 @@ public class GetInstructions {
     }
 
     public static String[] getApiSettings() {
+        // 1. Set up safe default values so the UI never gets a 'null'
+        // Format: {wallCellColor, pathColor, drawGrid, gridColor, animationDelayMs}
+        String[] result = new String[]{"#000000", "#FFFFFF", "true", "#CCCCCC", "50"};
 
         if (!isOnline()) {
-            return new String[]{"eror","eror","eror","eror","eror"};
+            return new String[]{"error","error","error","error","error"};
         }
 
         String settingsUrl = "https://backend-qcf9.onrender.com/fm1/get-render-config";
@@ -43,27 +46,33 @@ public class GetInstructions {
                     client.send(request, HttpResponse.BodyHandlers.ofString());
 
             String json = response.body();
+            if (json == null || json.isBlank()) return result;
 
+            // Clean up brackets, quotes, and spaces
             json = json.replaceAll("[{}\"\\s]", "");
             String[] pairs = json.split(",");
-            String[] result = new String[5];
 
             for (String pair : pairs) {
                 String[] kv = pair.split(":");
                 if (kv.length < 2) continue;
 
-                switch (kv[0]) {
-                    case "wallCellColor":     result[0] = kv[1]; break;
-                    case "pathColor":         result[1] = kv[1]; break;
-                    case "drawGrid":          result[2] = kv[1]; break;
-                    case "gridColor":         result[3] = kv[1]; break;
-                    case "animationDelayMs":  result[4] = kv[1]; break;
+                String key = kv[0].trim();
+                String value = kv[1].trim();
+
+                // Lowercase comparison to avoid spelling/casing mismatches from API
+                switch (key.toLowerCase()) {
+                    case "wallcellcolor":     result[0] = value; break;
+                    case "pathcolor":         result[1] = value; break;
+                    case "drawgrid":          result[2] = value; break;
+                    case "gridcolor":         result[3] = value; break;
+                    case "animationdelayms":  result[4] = value; break;
                 }
             }
             return result;
 
         } catch (Exception e) {
-            return new String[]{"eror","eror","eror","eror","eror"};
+            // If the API times out or crashes, return the safe defaults instead of nulls
+            return result;
         }
     }
 
