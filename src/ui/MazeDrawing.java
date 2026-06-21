@@ -11,19 +11,24 @@ import java.awt.image.BufferedImage;
 public class MazeDrawing extends JPanel {
     private JButton back;
     private JButton chack_solution;
+    private JButton save_solution;
     private boolean state_chack_solution;
     private int[][] solution;
     private String[] setting;
     private BufferedImage image;
     private BufferedImage image_animation;
+    private BufferedImage solution_image;
+    private int[][] maze_image;
     private int width, height, square_size;
     public MazeDrawing(String[] setting, int[][] maze_image, int width, int height) {
         this.width = width;
         this.height = height;
+        this.maze_image = maze_image;
         state_chack_solution = false;
         this.setting = setting;
         if (maze_image == null) {
             maze_image = OfflineMaze.generateMaze(width, height);
+            this.maze_image = maze_image;
         }
         image = Grid.CrateImage(maze_image, width, height, setting[0], Boolean.parseBoolean(setting[2]), setting[3]);
         square_size = Grid.getSquare();
@@ -54,6 +59,16 @@ public class MazeDrawing extends JPanel {
         chack_solution.setCursor(new Cursor(Cursor.HAND_CURSOR));
         chack_solution.setBounds(1000, 120, 200, 100);
 
+        save_solution = new JButton("שמור פתרון");
+        save_solution.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        save_solution.setBackground(new Color(52, 152, 219));
+        save_solution.setForeground(Color.WHITE);
+        save_solution.setFocusPainted(false);
+        save_solution.setBorderPainted(false);
+        save_solution.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        save_solution.setBounds(1000, 260, 200, 100);
+        save_solution.setEnabled(false);
+
         back.addActionListener(e -> {
             MainPanel mainPanel = (MainPanel) SwingUtilities.getWindowAncestor(back);
             mainPanel.setSettingsWindow();
@@ -70,18 +85,42 @@ public class MazeDrawing extends JPanel {
             Frame();
         });
 
+        save_solution.addActionListener(e -> {
+            if(solution_image != null) {
+                boolean saved = Grid.SaveMazeAsImage(solution_image);
+                if(saved) {
+                    save_solution.setText("✓ נשמר!");
+                    save_solution.setBackground(new Color(39, 174, 96));
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(2000);
+                            save_solution.setText("שמור פתרון");
+                            save_solution.setBackground(new Color(52, 152, 219));
+                            SwingUtilities.invokeLater(() -> {
+                                save_solution.revalidate();
+                                save_solution.repaint();
+                            });
+                        } catch (InterruptedException ex) {}
+                    }).start();
+                }
+            }
+        });
+
         add(back);
         add(chack_solution);
-
+        add(save_solution);
 
     }
     private void Frame() {
         new Thread(() -> {
             chack_solution.setEnabled(false);
+            save_solution.setEnabled(false);
             state_chack_solution = true;
             image_animation = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
             Graphics2D g2d = image_animation.createGraphics();
             g2d.drawImage(image, 0, 0, null);
+            g2d.dispose();
+
             for (int i =0; i < solution.length; i++) {
                 image_animation = Grid.Crateanimation(image_animation, solution[i], setting[1], Boolean.parseBoolean(setting[2]), setting[3]);
                 SwingUtilities.invokeLater(() -> {
@@ -95,8 +134,18 @@ public class MazeDrawing extends JPanel {
 
             }
 
-           chack_solution.setEnabled(true);
-           state_chack_solution = false;
+            // יצירת תמונת הפתרון השלם לשמירה
+            solution_image = Grid.CreateSolutionImage(image, solution, setting[1], Boolean.parseBoolean(setting[2]), setting[3]);
+            image_animation = solution_image; // הצגת הפתרון השלם
+
+            chack_solution.setEnabled(true);
+            save_solution.setEnabled(true);
+            state_chack_solution = false;
+
+            SwingUtilities.invokeLater(() -> {
+                this.revalidate();
+                this.repaint();
+            });
         }).start();
     }
 
