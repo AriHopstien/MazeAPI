@@ -138,9 +138,44 @@ public class MazeDrawing extends JPanel {
             solution_image = Grid.CreateSolutionImage(image, solution, setting[1], Boolean.parseBoolean(setting[2]), setting[3]);
             image_animation = solution_image; // הצגת הפתרון השלם
 
+            SwingUtilities.invokeLater(() -> {
+                this.revalidate();
+                this.repaint();
+            });
+
+            // המתן 1.5 שניות לפני האנימציה בחזרה
+            try {
+                Thread.sleep(1500);
+            } catch (InterruptedException e) {}
+
+            // ============================================
+            // אנימציה בחזרה - מהסוף (יעד) להתחלה
+            // ============================================
+            state_chack_solution = true;
+            image_animation = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
+            Graphics2D g2d_reverse = image_animation.createGraphics();
+            g2d_reverse.drawImage(image, 0, 0, null);
+            g2d_reverse.dispose();
+
+            // עבור בסדר הפוך על הנתיב (מהסוף להתחלה)
+            for (int i = solution.length - 1; i >= 0; i--) {
+                image_animation = Grid.Crateanimation(image_animation, solution[i], setting[1], Boolean.parseBoolean(setting[2]), setting[3]);
+                SwingUtilities.invokeLater(() -> {
+                    this.revalidate();
+                    this.repaint();
+                });
+                try {
+                    Thread.sleep(Integer.parseInt(setting[4]));
+                }
+                catch (InterruptedException e) {}
+            }
+
+            // הצגת הפתרון השלם שוב (אחרי האנימציה בחזרה)
+            image_animation = solution_image;
+            state_chack_solution = false;
+
             chack_solution.setEnabled(true);
             save_solution.setEnabled(true);
-            state_chack_solution = false;
 
             SwingUtilities.invokeLater(() -> {
                 this.revalidate();
