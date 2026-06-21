@@ -25,8 +25,7 @@ public class GetInstructions {
     }
 
     public static String[] getApiSettings() {
-        // 1. Set up safe default values so the UI never gets a 'null'
-        // Format: {wallCellColor, pathColor, drawGrid, gridColor, animationDelayMs}
+
         String[] result = new String[]{"#000000", "#FFFFFF", "true", "#CCCCCC", "50"};
 
         if (!isOnline()) {
@@ -48,7 +47,6 @@ public class GetInstructions {
             String json = response.body();
             if (json == null || json.isBlank()) return result;
 
-            // Clean up brackets, quotes, and spaces
             json = json.replaceAll("[{}\"\\s]", "");
             String[] pairs = json.split(",");
 
@@ -59,7 +57,6 @@ public class GetInstructions {
                 String key = kv[0].trim();
                 String value = kv[1].trim();
 
-                // Lowercase comparison to avoid spelling/casing mismatches from API
                 switch (key.toLowerCase()) {
                     case "wallcellcolor":     result[0] = value; break;
                     case "pathcolor":         result[1] = value; break;
@@ -71,7 +68,7 @@ public class GetInstructions {
             return result;
 
         } catch (Exception e) {
-            // If the API times out or crashes, return the safe defaults instead of nulls
+
             return result;
         }
     }
