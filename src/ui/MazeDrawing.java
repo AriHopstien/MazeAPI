@@ -14,6 +14,7 @@ public class MazeDrawing extends JPanel {
     private JButton save_solution;
     private boolean state_chack_solution;
     private int[][] solution;
+    private JLabel solutionLengthLabel;
     private String[] setting;
     private BufferedImage image;
     private BufferedImage image_animation;
@@ -34,6 +35,15 @@ public class MazeDrawing extends JPanel {
         square_size = Grid.getSquare();
 
         solution = CheckSolution.solve(maze_image);
+        solutionLengthLabel = new JLabel("Solution length: --");
+        solutionLengthLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        solutionLengthLabel.setForeground(new Color(175, 197, 204));
+        solutionLengthLabel.setBounds(1000, 230, 220, 30);
+        add(solutionLengthLabel);
+
+        if (solution != null) {
+            solutionLengthLabel.setText("Solution length: " + solution.length);
+        }
         this.setPreferredSize(new Dimension(1280, 720));
         setLayout(null);
         setBackground(new Color(25, 25, 35));
